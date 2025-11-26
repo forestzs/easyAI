@@ -1,82 +1,90 @@
+# EasyAI – Document Q&A Web App
+
+EasyAI is a full-stack web application that lets users upload large PDF documents and ask natural-language questions about them. The app uses retrieval-augmented generation (RAG): it indexes document content into embeddings, performs vector search to find relevant passages, and then calls an LLM to generate concise, context-aware answers.
 
 ---
 
-## EasyAI Web App（NextAI / easyAI）– README
-
-```markdown
-# EasyAI – AI-Powered Document Assistant
-
-EasyAI is a web-based AI document assistant that supports retrieval-augmented question answering over large PDF documents (up to ~50MB). It focuses on fast, relevant responses using vector search, semantic chunking, and optimized backend routing.
-
 ## Features
 
-- Upload PDF documents and query them in natural language
-- Retrieval-augmented generation (RAG) powered by embeddings and vector search
-- Supports large PDFs (up to around 50MB)
-- Semantic chunking for improved context retrieval
-- >90% of queries respond under 2 seconds under typical load :contentReference[oaicite:8]{index=8}
-- Optimized routing and caching to reduce latency and stabilize performance under bursty workloads
-- Clean REST endpoints and error handling contracts to support multiple frontends (voice input, conversation history, etc.) :contentReference[oaicite:9]{index=9}
+- Upload large PDF documents through a simple web interface  
+- Automatic text extraction and chunking from PDFs  
+- Embedding-based vector search over document chunks  
+- Retrieval-augmented question answering using an LLM API  
+- Chat-style interface that displays both questions and answers  
+- Persistent default document so users can try the app without uploading anything  
+- Simple Node.js backend API for chat and document handling  
+
+---
 
 ## Tech Stack
 
-**Backend**
-
-- Java (or Node.js/Python depending on your implementation; resume says Java) :contentReference[oaicite:10]{index=10}
-- LangChain (for orchestration / RAG pipeline)
-- Vector store (e.g., FAISS / Pinecone / other)
-- REST API framework (Spring Boot / Express)
-
 **Frontend**
 
-- React (from current repo structure)
-- Components:
-  - PDF uploader
-  - Chat / Q&A interface
-  - Rendered Q&A history
+- React (Create React App structure)  
+- Functional components with hooks  
+- Custom components for chat, file upload, and answer rendering  
 
-**Infrastructure**
+**Backend**
 
-- Cloud deployment (e.g., AWS / GCP)
-- Caching layer (e.g., in-memory / Redis)
-- Logging and monitoring for latency and error tracking
+- Node.js  
+- Express.js  
+- PDF processing (e.g., pdf-parse or similar library)  
+- Embedding + vector search (in-memory or simple store)  
+- OpenAI (or compatible) LLM API for answer generation  
+
+---
 
 ## Architecture Overview
 
-- **Ingestion Pipeline**
-  - Accepts PDF uploads via REST API.
-  - Splits documents into semantic chunks.
-  - Creates embeddings and writes them to a vector store.
+- **Frontend (React App)**  
+  - `App` component manages global layout and routing.  
+  - `PdfUploader` handles file selection and upload to the backend.  
+  - `ChatComponent` manages user questions, sends them to the server, and renders responses.  
+  - `RenderQA` displays question–answer pairs in a clean, readable format.
 
-- **Query Pipeline**
-  - Accepts natural language questions.
-  - Retrieves top-N relevant chunks from vector store.
-  - Constructs prompts for the LLM and returns the final answer.
-  - Tracks latency and hit rates.
+- **Backend (Express Server)**  
+  - `server/server.js`  
+    - Main entry point for the Node.js backend.  
+    - Exposes REST endpoints for file upload and chat requests.  
+  - `server/chat.js`  
+    - Core logic for document Q&A.  
+    - Handles:
+      - Loading the current document (PDF)  
+      - Splitting text into chunks  
+      - Generating embeddings and building a vector index  
+      - Running similarity search to retrieve top-k relevant chunks  
+      - Calling the LLM API with retrieved context + user question  
+      - Returning the final answer to the frontend  
 
-- **Caching & Routing**
-  - Caching frequently accessed query patterns and retrieval results.
-  - Reduced average API latency by ~40% during peak usage and stabilized performance. :contentReference[oaicite:11]{index=11}
+- **Uploads & Defaults**  
+  - `server/uploads/`  
+    - Stores uploaded PDFs and sample files (e.g. `your-default-file.pdf`)  
+    - May contain additional notes or test documents (kept out of version control in production via `.gitignore`)  
 
-- **API Design**
-  - Clear endpoints for:
-    - `/api/upload` – upload and index PDFs
-    - `/api/query` – ask questions about a specific document
-    - `/api/history` – (optional) retrieve conversation history
+---
 
-## Getting Started
+## Project Structure
 
-### Prerequisites
-
-- JDK 17+ (if backend is Java)
-- Node.js & npm (for React frontend)
-- Access to an LLM provider (e.g., OpenAI)
-- Vector store (local or managed)
-
-### Backend Setup
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/<your-username>/easyAI.git
-   cd easyAI
+```text
+easyAI/
+├── README.md
+├── package.json          # React frontend package
+├── package-lock.json
+├── public/
+│   ├── index.html
+│   └── ...
+├── src/
+│   ├── App.js
+│   ├── App.css
+│   ├── index.js
+│   ├── components/
+│   │   ├── ChatComponent.js
+│   │   ├── PdfUploader.js
+│   │   └── RenderQA.js
+│   └── ...
+└── server/
+    ├── server.js         # Express server entry
+    ├── chat.js           # RAG + LLM logic
+    ├── package.json      # Backend dependencies
+    ├── package-lock.json
+    └── uploads/          # PDF files and default docs
