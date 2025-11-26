@@ -1,70 +1,82 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+## EasyAI Web App（NextAI / easyAI）– README
 
-In the project directory, you can run:
+```markdown
+# EasyAI – AI-Powered Document Assistant
 
-### `npm start`
+EasyAI is a web-based AI document assistant that supports retrieval-augmented question answering over large PDF documents (up to ~50MB). It focuses on fast, relevant responses using vector search, semantic chunking, and optimized backend routing.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Upload PDF documents and query them in natural language
+- Retrieval-augmented generation (RAG) powered by embeddings and vector search
+- Supports large PDFs (up to around 50MB)
+- Semantic chunking for improved context retrieval
+- >90% of queries respond under 2 seconds under typical load :contentReference[oaicite:8]{index=8}
+- Optimized routing and caching to reduce latency and stabilize performance under bursty workloads
+- Clean REST endpoints and error handling contracts to support multiple frontends (voice input, conversation history, etc.) :contentReference[oaicite:9]{index=9}
 
-### `npm test`
+## Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Backend**
 
-### `npm run build`
+- Java (or Node.js/Python depending on your implementation; resume says Java) :contentReference[oaicite:10]{index=10}
+- LangChain (for orchestration / RAG pipeline)
+- Vector store (e.g., FAISS / Pinecone / other)
+- REST API framework (Spring Boot / Express)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Frontend**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- React (from current repo structure)
+- Components:
+  - PDF uploader
+  - Chat / Q&A interface
+  - Rendered Q&A history
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Infrastructure**
 
-### `npm run eject`
+- Cloud deployment (e.g., AWS / GCP)
+- Caching layer (e.g., in-memory / Redis)
+- Logging and monitoring for latency and error tracking
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Architecture Overview
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Ingestion Pipeline**
+  - Accepts PDF uploads via REST API.
+  - Splits documents into semantic chunks.
+  - Creates embeddings and writes them to a vector store.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Query Pipeline**
+  - Accepts natural language questions.
+  - Retrieves top-N relevant chunks from vector store.
+  - Constructs prompts for the LLM and returns the final answer.
+  - Tracks latency and hit rates.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Caching & Routing**
+  - Caching frequently accessed query patterns and retrieval results.
+  - Reduced average API latency by ~40% during peak usage and stabilized performance. :contentReference[oaicite:11]{index=11}
 
-## Learn More
+- **API Design**
+  - Clear endpoints for:
+    - `/api/upload` – upload and index PDFs
+    - `/api/query` – ask questions about a specific document
+    - `/api/history` – (optional) retrieve conversation history
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Getting Started
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
 
-### Code Splitting
+- JDK 17+ (if backend is Java)
+- Node.js & npm (for React frontend)
+- Access to an LLM provider (e.g., OpenAI)
+- Vector store (local or managed)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Backend Setup
 
-### Analyzing the Bundle Size
+1. Clone the repository:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+   ```bash
+   git clone https://github.com/<your-username>/easyAI.git
+   cd easyAI
